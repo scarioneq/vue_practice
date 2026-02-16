@@ -1,7 +1,8 @@
 let app = new Vue ({
     el: '#app',
     data: {
-        product: "S123ocks"
+        product: "Socks",
+        description: "A pair of warm, fuzzy socks."
     }
 })
 
