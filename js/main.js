@@ -165,7 +165,7 @@ Vue.component('product', {
     template: `
      <div class="product">
 
-        <div class="product-image">
+        <div class="product-image" :style="{ filter: isSoldOut ? 'grayscale(100%)' : 'none' }">
             <img v-bind:alt="altText" v-bind:src="image"/>
         </div>
         <div class="product-info">
@@ -175,9 +175,13 @@ Vue.component('product', {
             <p v-if="inStock">In stock</p>
             <p v-else :class="{ outOfStock: !inStock }" >Out of stock</p>
             <span v-show="onSale">{{sale}}</span>
-            
-           
-
+            <span v-if="!isSoldOut">
+                {{ variants[selectedVariant].variantQuantity }} штук
+            </span>
+            <span v-else>
+                РАСПРОДАНО
+            </span>
+     
             <div
                 class="color-box"
                 v-for="(variant, index) in variants"
@@ -230,12 +234,14 @@ Vue.component('product', {
                         variantColor: 'green',
                         variantImage: "./assets/vmSocks-green-onWhite.jpg",
                         variantQuantity: 10,
+                        cost: 50,
                     },
                     {
                         variantId: 2235,
                         variantColor: 'blue',
                         variantImage: "./assets/vmSocks-blue-onWhite.jpg",
                         variantQuantity: 1,
+                        cost: 25
                     }
                 ],
                 sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
@@ -247,12 +253,17 @@ Vue.component('product', {
     },
     methods: {
         addToCart() {
-            this.$emit('add-to-cart',
-            this.variants[this.selectedVariant].variantId);
+            if (this.variants[this.selectedVariant].variantQuantity > 0) {
+                    this.variants[this.selectedVariant].variantQuantity -= 1;
+                    this.$emit('add-to-cart',
+                    this.variants[this.selectedVariant].variantId, this.variants[this.selectedVariant].cost);
+            } else {
+
+            }
         },
         deleteFromCart() {
-            this.$emit('delete-to-cart',
-                this.variants[this.selectedVariant].variantId);
+                this.variants[this.selectedVariant].variantQuantity += 1;
+                this.$emit('delete-to-cart', this.variants[this.selectedVariant].variantId, this.variants[this.selectedVariant].cost);
         },
         updateProduct(index) {
             this.selectedVariant = index;
@@ -284,6 +295,9 @@ Vue.component('product', {
             } else {
                 return 2.99
             }
+        },
+        isSoldOut() {
+            return this.variants[this.selectedVariant].variantQuantity === 0;
         }
     }
 })
@@ -294,20 +308,28 @@ let app = new Vue({
     data: {
         premium: true,
         cart: [],
-
+        totalCost: 0,
     },
     methods: {
-        updateCart(id) {
+        updateCart(id, cost) {
             this.cart.push(id);
-            console.log(this.cart);
+            this.totalCost += cost;
+            console.log(this.cart, cost, this.totalCost);
         },
-        removeFromCart(id) {
-            for (let i = 0; i < this.cart.length; i++) {
-                if (this.cart[i] === id) {
-                    this.cart.splice(i, 1);
-                    break;
+        removeFromCart(id, cost) {
+            if (this.totalCost - cost >= 0) {
+
+                for (let i = 0; i < this.cart.length; i++) {
+                    if (this.cart[i] === id) {
+                        this.cart.splice(i, 1);
+                        break;
+                    }
                 }
+                this.totalCost -= cost;
+
             }
+
+            console.log(this.totalCost);
             console.log(this.cart);
         }
     }
