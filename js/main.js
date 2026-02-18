@@ -9,6 +9,7 @@ Vue.component('product-details', {
         <ul>
             <li v-for="detail in details">{{ detail }}</li>
         </ul>
+        
     `
 })
 
@@ -160,7 +161,12 @@ Vue.component('product', {
       premium: {
           type: Boolean,
           required: true,
-      }
+      },
+
+      cart: {
+          type: Array,
+          required: false
+        }
     },
     template: `
      <div class="product">
@@ -190,6 +196,8 @@ Vue.component('product', {
                 @mouseover="updateProduct(index)"
             >
             </div>
+            <p>Цена: {{ variants[selectedVariant].cost }} руб.</p>
+           
 
             <div>
                 <ul>
@@ -262,8 +270,10 @@ Vue.component('product', {
             }
         },
         deleteFromCart() {
+            if (this.cart.length !== 0) {
                 this.variants[this.selectedVariant].variantQuantity += 1;
                 this.$emit('delete-to-cart', this.variants[this.selectedVariant].variantId, this.variants[this.selectedVariant].cost);
+            }
         },
         updateProduct(index) {
             this.selectedVariant = index;
@@ -310,27 +320,23 @@ let app = new Vue({
         cart: [],
         totalCost: 0,
     },
+
     methods: {
         updateCart(id, cost) {
             this.cart.push(id);
             this.totalCost += cost;
-            console.log(this.cart, cost, this.totalCost);
         },
+
         removeFromCart(id, cost) {
-            if (this.totalCost - cost >= 0) {
 
-                for (let i = 0; i < this.cart.length; i++) {
-                    if (this.cart[i] === id) {
-                        this.cart.splice(i, 1);
-                        break;
-                    }
+            for (let i = 0; i < this.cart.length; i++) {
+                if (this.cart[i] === id) {
+                    this.cart.splice(i, 1);
+                    this.totalCost -= cost;
+                    break;
                 }
-                this.totalCost -= cost;
-
             }
 
-            console.log(this.totalCost);
-            console.log(this.cart);
         }
     }
 })

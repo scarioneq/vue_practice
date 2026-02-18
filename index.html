@@ -16,7 +16,7 @@
         <p>Cart({{ cart.length }})</p>
         <p>TotalCost({{ totalCost }})</p>
     </div>
-    <product :premium="premium" @add-to-cart="updateCart" @delete-to-cart="removeFromCart"></product>
+    <product :premium="premium" @add-to-cart="updateCart" @delete-to-cart="removeFromCart" :cart="cart"></product>
 
 </div>
 </body>
