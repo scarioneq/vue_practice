@@ -342,7 +342,6 @@ let app = new Vue({
                     break;
                 }
             }
-
         }
     }
 })
