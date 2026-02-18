@@ -271,8 +271,7 @@ Vue.component('product', {
         },
         deleteFromCart() {
             if (this.cart.length !== 0) {
-                this.variants[this.selectedVariant].variantQuantity += 1;
-                this.$emit('delete-to-cart', this.variants[this.selectedVariant].variantId, this.variants[this.selectedVariant].cost);
+                this.$emit('delete-to-cart', this.variants[this.selectedVariant].variantId, this.variants[this.selectedVariant].cost, this.variants);
             }
         },
         updateProduct(index) {
@@ -320,6 +319,12 @@ let app = new Vue({
         cart: [],
         totalCost: 0,
     },
+    props: {
+        variants: {
+            type: Array,
+            required: false,
+        }
+    },
 
     methods: {
         updateCart(id, cost) {
@@ -327,12 +332,13 @@ let app = new Vue({
             this.totalCost += cost;
         },
 
-        removeFromCart(id, cost) {
+        removeFromCart(id, cost, arrayVariants) {
 
             for (let i = 0; i < this.cart.length; i++) {
                 if (this.cart[i] === id) {
                     this.cart.splice(i, 1);
                     this.totalCost -= cost;
+                    arrayVariants[i].variantQuantity++;
                     break;
                 }
             }
